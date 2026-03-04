@@ -21,3 +21,4 @@ stdout.txt
 # Backup files
 *_backup.*
 *_pal.png
+.vercel

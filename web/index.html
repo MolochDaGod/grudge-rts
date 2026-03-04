@@ -11,7 +11,6 @@
       --gold: #d4a843;
       --gold-light: #f0d078;
       --dark: #0a0a0f;
-      --darker: #060609;
       --card: #12121a;
       --card-border: #1e1e2a;
       --text: #c8c8d0;
@@ -111,6 +110,8 @@
       transition: all 0.2s;
     }
 
+    .btn svg { flex-shrink: 0; }
+
     .btn-primary {
       background: linear-gradient(135deg, var(--gold), #b8912e);
       color: #0a0a0f;
@@ -136,12 +137,9 @@
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 32px 48px;
-      position: relative;
     }
 
-    .sprite-canvas::after {
-      content: 'Knight Unit — 25 Frames';
-      display: block;
+    .sprite-label {
       margin-top: 16px;
       font-size: 12px;
       color: var(--text-muted);
@@ -150,10 +148,114 @@
     }
 
     #knight-anim {
-      width: 128px;
-      height: 128px;
+      width: 192px;
+      height: 192px;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+    }
+
+    .anim-controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .anim-btn {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--card-border);
+      padding: 4px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .anim-btn:hover, .anim-btn.active {
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    /* Download section */
+    .download-section {
+      margin: 48px 0;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    .download-section h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .steps {
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .steps li {
+      counter-increment: step;
+      padding: 12px 0;
+      padding-left: 40px;
+      position: relative;
+      border-bottom: 1px solid var(--card-border);
+      line-height: 1.6;
+    }
+    .steps li:last-child { border-bottom: none; }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 26px;
+      height: 26px;
+      background: rgba(212, 168, 67, 0.15);
+      color: var(--gold);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .steps code {
+      background: rgba(212, 168, 67, 0.1);
+      color: var(--gold-light);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .steps a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .steps a:hover { text-decoration: underline; }
+
+    .download-btns {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* Section title */
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2rem;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 24px;
     }
 
     /* Info cards */
@@ -228,9 +330,13 @@
         Command knights, build factions, and conquer islands.
       </p>
       <div class="btn-row">
-        <a href="https://github.com/MolochDaGod/grudge-rts" class="btn btn-primary">
+        <a href="https://github.com/MolochDaGod/grudge-rts/archive/refs/heads/main.zip" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Game Files
+        </a>
+        <a href="https://github.com/MolochDaGod/grudge-rts" class="btn btn-secondary">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          GitHub
+          View Source
         </a>
         <a href="https://grudgestudio.com" class="btn btn-secondary">Grudge Studio</a>
       </div>
@@ -239,11 +345,48 @@
     <!-- Animated sprite -->
     <section class="sprite-section">
       <div class="sprite-canvas">
-        <canvas id="knight-anim" width="128" height="128"></canvas>
+        <canvas id="knight-anim" width="192" height="192"></canvas>
+        <div class="anim-controls">
+          <button class="anim-btn active" data-anim="idle">Idle</button>
+          <button class="anim-btn" data-anim="walk">Walk</button>
+          <button class="anim-btn" data-anim="attack">Attack</button>
+          <button class="anim-btn" data-anim="death">Death</button>
+        </div>
+        <div class="sprite-label">Knight Unit &mdash; 25 Frames Spritesheet</div>
+      </div>
+    </section>
+
+    <!-- Download / Get Started -->
+    <section class="download-section">
+      <h2>Get the Game</h2>
+      <ol class="steps">
+        <li>
+          <strong>Download or clone the repo</strong><br>
+          <code>git clone https://github.com/MolochDaGod/grudge-rts.git</code><br>
+          or use the <a href="https://github.com/MolochDaGod/grudge-rts/archive/refs/heads/main.zip">ZIP download</a> above.
+        </li>
+        <li>
+          <strong>Build the Stratagus engine</strong><br>
+          Clone <a href="https://github.com/Wargus/stratagus">Wargus/stratagus</a> and build with CMake + Visual Studio 2022.
+          You need <code>stratagus.exe</code> from the Release build.
+        </li>
+        <li>
+          <strong>Launch</strong><br>
+          Point the engine at the game data directory:<br>
+          <code>stratagus.exe -d path/to/grudge-rts -p -W</code>
+        </li>
+      </ol>
+      <div class="download-btns">
+        <a href="https://github.com/MolochDaGod/grudge-rts/archive/refs/heads/main.zip" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download ZIP
+        </a>
+        <a href="https://github.com/Wargus/stratagus/releases" class="btn btn-secondary">Get Stratagus Engine</a>
       </div>
     </section>
 
     <!-- Feature cards -->
+    <h2 class="section-title">Features</h2>
     <section class="cards">
       <div class="card">
         <h3>Sprite Pipeline</h3>
@@ -273,43 +416,68 @@
   </div>
 
   <script>
-    // Simple sprite animation from the knight spritesheet
     const canvas = document.getElementById('knight-anim');
     const ctx = canvas.getContext('2d');
     const img = new Image();
-    // Use the knight sprite from the repo
-    img.src = '../grudge-rts/graphics/units/knight/knight.png';
+    img.src = 'assets/knight.png';
 
     const FRAME_W = 100;
     const FRAME_H = 100;
-    const TOTAL_FRAMES = 25;
-    const IDLE_FRAMES = [0, 1, 2, 3, 4, 5];
-    let frameIdx = 0;
-
-    img.onload = () => {
-      function draw() {
-        ctx.clearRect(0, 0, 128, 128);
-        ctx.imageSmoothingEnabled = false;
-        const f = IDLE_FRAMES[frameIdx % IDLE_FRAMES.length];
-        ctx.drawImage(img, f * FRAME_W, 0, FRAME_W, FRAME_H, 0, 0, 128, 128);
-        frameIdx++;
-      }
-      draw();
-      setInterval(draw, 200);
+    const ANIMS = {
+      idle:   { frames: [0,1,2,3,4,5], speed: 200 },
+      walk:   { frames: [6,7,8,9,10,11,12,13], speed: 120 },
+      attack: { frames: [14,15,16,17,18,19,20], speed: 100 },
+      death:  { frames: [21,22,23,24], speed: 250 }
     };
 
-    // Fallback if image doesn't load (it's indexed PNG, may not render in all browsers)
+    let currentAnim = 'idle';
+    let frameIdx = 0;
+    let timer = null;
+
+    function draw() {
+      const anim = ANIMS[currentAnim];
+      ctx.clearRect(0, 0, 192, 192);
+      ctx.imageSmoothingEnabled = false;
+      const f = anim.frames[frameIdx % anim.frames.length];
+      ctx.drawImage(img, f * FRAME_W, 0, FRAME_W, FRAME_H, 0, 0, 192, 192);
+      frameIdx++;
+      if (currentAnim === 'death' && frameIdx >= anim.frames.length) {
+        switchAnim('idle');
+        document.querySelector('.anim-btn.active').classList.remove('active');
+        document.querySelector('[data-anim="idle"]').classList.add('active');
+      }
+    }
+
+    function switchAnim(name) {
+      currentAnim = name;
+      frameIdx = 0;
+      if (timer) clearInterval(timer);
+      timer = setInterval(draw, ANIMS[name].speed);
+      draw();
+    }
+
+    img.onload = () => { switchAnim('idle'); };
+
     img.onerror = () => {
       ctx.fillStyle = '#1e1e2a';
-      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillRect(0, 0, 192, 192);
       ctx.fillStyle = '#d4a843';
-      ctx.font = '14px Inter, sans-serif';
+      ctx.font = 'bold 16px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('⚔️ Knight', 64, 60);
+      ctx.fillText('Knight Sprite', 96, 90);
       ctx.fillStyle = '#6e6e80';
-      ctx.font = '11px Inter, sans-serif';
-      ctx.fillText('Sprite Preview', 64, 80);
+      ctx.font = '12px Inter, sans-serif';
+      ctx.fillText('Download the game to see', 96, 115);
+      ctx.fillText('sprites in action', 96, 132);
     };
+
+    document.querySelectorAll('.anim-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelector('.anim-btn.active').classList.remove('active');
+        btn.classList.add('active');
+        switchAnim(btn.dataset.anim);
+      });
+    });
   </script>
 </body>
 </html>
