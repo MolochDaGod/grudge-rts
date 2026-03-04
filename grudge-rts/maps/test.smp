@@ -1,0 +1,5 @@
+-- Grudge RTS Test Map - Map Presentation
+-- Stratagus Map Presentation (.smp) file
+
+DefinePlayerTypes("person", "computer")
+PresentMap("Grudge RTS Test", 2, 32, 32, 1)

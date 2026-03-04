@@ -1,0 +1,23 @@
+# Crash dumps
+*.dmp
+
+# Engine binaries (built separately)
+engine/
+
+# Wyrmsun reference data (not part of the game)
+wyrmsun-ref/
+
+# Node modules
+node_modules/
+
+# User data
+userdata/
+
+# Temp files
+*.log
+stderr.txt
+stdout.txt
+
+# Backup files
+*_backup.*
+*_pal.png

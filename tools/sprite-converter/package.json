@@ -1,0 +1,13 @@
+{
+  "name": "grudge-sprite-converter",
+  "version": "1.0.0",
+  "description": "Converts Grudge sprite sheets into Stratagus-compatible combined PNGs and Lua animation definitions",
+  "main": "convert.js",
+  "scripts": {
+    "convert": "node convert.js",
+    "convert:all": "node convert-all.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.0"
+  }
+}
