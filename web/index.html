@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grudge RTS — Real-Time Strategy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #d4a843;
+      --gold-light: #f0d078;
+      --dark: #0a0a0f;
+      --darker: #060609;
+      --card: #12121a;
+      --card-border: #1e1e2a;
+      --text: #c8c8d0;
+      --text-muted: #6e6e80;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(rgba(212, 168, 67, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212, 168, 67, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      padding: 48px 0 0;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      border: 1px solid rgba(212, 168, 67, 0.3);
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 16px auto 32px;
+      line-height: 1.6;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #b8912e);
+      color: #0a0a0f;
+    }
+    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: #fff; }
+
+    /* Sprite showcase */
+    .sprite-section {
+      margin: 64px 0;
+      text-align: center;
+    }
+
+    .sprite-canvas {
+      display: inline-block;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 32px 48px;
+      position: relative;
+    }
+
+    .sprite-canvas::after {
+      content: 'Knight Unit — 25 Frames';
+      display: block;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    #knight-anim {
+      width: 128px;
+      height: 128px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* Info cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin: 48px 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: rgba(212, 168, 67, 0.4); }
+
+    .card h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Tech stack */
+    .tech {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 48px 0;
+    }
+
+    .tech-tag {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    footer a { color: var(--gold); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">Stratagus Engine</div>
+      <h1>GRUDGE <span>RTS</span></h1>
+      <p class="subtitle">
+        Classic real-time strategy meets the Grudge Warlords universe.
+        Command knights, build factions, and conquer islands.
+      </p>
+      <div class="btn-row">
+        <a href="https://github.com/MolochDaGod/grudge-rts" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
+        </a>
+        <a href="https://grudgestudio.com" class="btn btn-secondary">Grudge Studio</a>
+      </div>
+    </header>
+
+    <!-- Animated sprite -->
+    <section class="sprite-section">
+      <div class="sprite-canvas">
+        <canvas id="knight-anim" width="128" height="128"></canvas>
+      </div>
+    </section>
+
+    <!-- Feature cards -->
+    <section class="cards">
+      <div class="card">
+        <h3>Sprite Pipeline</h3>
+        <p>65+ Grudge Warlords characters converted to indexed PNGs with player-color palette slots for team-based rendering.</p>
+      </div>
+      <div class="card">
+        <h3>Lua Scripted</h3>
+        <p>Fully data-driven via Lua scripts — units, tilesets, AI, and UI are all moddable without recompiling the engine.</p>
+      </div>
+      <div class="card">
+        <h3>Faction AI</h3>
+        <p>AI crews with dynamic crew rotations, faction loyalty, and contextual behavior built on the Grudge Warlords lore.</p>
+      </div>
+    </section>
+
+    <div class="tech">
+      <span class="tech-tag">Stratagus Engine</span>
+      <span class="tech-tag">C++ / SDL2</span>
+      <span class="tech-tag">Lua Scripts</span>
+      <span class="tech-tag">Node.js Tools</span>
+      <span class="tech-tag">8-bit Indexed PNG</span>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 <a href="https://grudgestudio.com">Grudge Studio</a> &mdash; Game data is proprietary. Engine under GPL v2.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Simple sprite animation from the knight spritesheet
+    const canvas = document.getElementById('knight-anim');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    // Use the knight sprite from the repo
+    img.src = '../grudge-rts/graphics/units/knight/knight.png';
+
+    const FRAME_W = 100;
+    const FRAME_H = 100;
+    const TOTAL_FRAMES = 25;
+    const IDLE_FRAMES = [0, 1, 2, 3, 4, 5];
+    let frameIdx = 0;
+
+    img.onload = () => {
+      function draw() {
+        ctx.clearRect(0, 0, 128, 128);
+        ctx.imageSmoothingEnabled = false;
+        const f = IDLE_FRAMES[frameIdx % IDLE_FRAMES.length];
+        ctx.drawImage(img, f * FRAME_W, 0, FRAME_W, FRAME_H, 0, 0, 128, 128);
+        frameIdx++;
+      }
+      draw();
+      setInterval(draw, 200);
+    };
+
+    // Fallback if image doesn't load (it's indexed PNG, may not render in all browsers)
+    img.onerror = () => {
+      ctx.fillStyle = '#1e1e2a';
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.fillStyle = '#d4a843';
+      ctx.font = '14px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚔️ Knight', 64, 60);
+      ctx.fillStyle = '#6e6e80';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.fillText('Sprite Preview', 64, 80);
+    };
+  </script>
+</body>
+</html>
