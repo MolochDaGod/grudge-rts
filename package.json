@@ -1,5 +1,13 @@
 {
-  "dependencies": {
-    "dependencies": "^0.0.1"
-  }
+  "name": "grudge-rts",
+  "version": "1.0.0",
+  "description": "Grudge RTS — Browser-based real-time strategy game in the Grudge Warlords universe",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve web -l 3000",
+    "preview": "npx serve web -l 3000"
+  },
+  "keywords": ["rts", "game", "webgl", "canvas", "grudge-warlords"],
+  "author": "Grudge Studio",
+  "license": "UNLICENSED"
 }
