@@ -1,5 +1,5 @@
 // ─── Grudge RTS — Unit Module ───
-import { UNIT_DEFS, FACTIONS, TILE_SIZE } from './config.js';
+import { UNIT_DEFS, FACTIONS, TILE_SIZE, MAP_WIDTH, MAP_HEIGHT } from './config.js';
 
 let nextId = 1;
 
@@ -227,38 +227,60 @@ export class Unit {
   }
 }
 
-// Simple AI controller
+// AI controller with reinforcement spawning
+
 export class AIController {
   constructor(faction) {
     this.faction = faction;
     this.tick = 0;
-    this.aggroRange = 6 * TILE_SIZE;
+    this.aggroRange = 7 * TILE_SIZE;
+    this.spawnTimer = 0;
+    this.maxUnits = 12;
+    this.spawnInterval = 480; // ~8 seconds at 60fps
   }
 
-  update(units) {
+  update(units, frameCount) {
     this.tick++;
-    if (this.tick % 30 !== 0) return; // Think every 30 frames
-
     const myUnits = units.filter(u => u.faction === this.faction && u.alive);
     const enemies = units.filter(u => u.faction !== this.faction && u.alive);
 
-    for (const unit of myUnits) {
-      if (unit.attackTarget && unit.attackTarget.alive) continue; // Already fighting
+    // Aggro logic (every 30 frames)
+    if (this.tick % 30 === 0) {
+      for (const unit of myUnits) {
+        if (unit.attackTarget && unit.attackTarget.alive) continue;
 
-      // Find closest enemy in aggro range
-      let closest = null;
-      let closestDist = this.aggroRange;
-      for (const e of enemies) {
-        const d = unit.distanceTo(e);
-        if (d < closestDist) {
-          closestDist = d;
-          closest = e;
+        let closest = null;
+        let closestDist = this.aggroRange;
+        for (const e of enemies) {
+          const d = unit.distanceTo(e);
+          if (d < closestDist) {
+            closestDist = d;
+            closest = e;
+          }
+        }
+
+        if (closest) {
+          unit.attackUnit(closest);
+        } else if (unit.state === 'idle' && enemies.length > 0) {
+          // Patrol toward a random enemy if idle and nothing in aggro range
+          const target = enemies[Math.floor(Math.random() * enemies.length)];
+          unit.moveTo(target.centerX, target.centerY);
         }
       }
-
-      if (closest) {
-        unit.attackUnit(closest);
-      }
     }
+
+    // Reinforcement spawning
+    this.spawnTimer++;
+    if (this.spawnTimer >= this.spawnInterval && myUnits.length < this.maxUnits) {
+      this.spawnTimer = 0;
+      const sx = (MAP_WIDTH - 9) * TILE_SIZE + Math.random() * 100;
+      const sy = (MAP_HEIGHT - 9) * TILE_SIZE + Math.random() * 100;
+      const u = new Unit('knight', sx, sy, this.faction);
+      // Slowly increase spawn rate as game progresses
+      this.spawnInterval = Math.max(300, this.spawnInterval - 10);
+      return [u];
+    }
+
+    return null;
   }
 }

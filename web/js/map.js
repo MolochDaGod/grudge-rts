@@ -21,7 +21,6 @@ export class GameMap {
   }
 
   generate() {
-    const rng = (n) => Math.floor(Math.random() * n);
     this.tiles = [];
 
     for (let y = 0; y < this.height; y++) {
@@ -112,12 +111,16 @@ export class GameMap {
     }
   }
 
-  drawMinimap(ctx, x, y, size) {
-    const scaleX = size / (this.width * TILE_SIZE);
-    const scaleY = size / (this.height * TILE_SIZE);
+  // Build an offscreen minimap image (called once after generate)
+  buildMinimapCache(size) {
+    this._mmSize = size;
+    this._mmCanvas = document.createElement('canvas');
+    this._mmCanvas.width = size;
+    this._mmCanvas.height = size;
+    const mc = this._mmCanvas.getContext('2d');
 
-    ctx.fillStyle = '#1a1a1a';
-    ctx.fillRect(x, y, size, size);
+    mc.fillStyle = '#1a1a1a';
+    mc.fillRect(0, 0, size, size);
 
     const tileW = size / this.width;
     const tileH = size / this.height;
@@ -125,14 +128,19 @@ export class GameMap {
     for (let ty = 0; ty < this.height; ty++) {
       for (let tx = 0; tx < this.width; tx++) {
         const tile = this.tiles[ty][tx];
-        if (tile === TILE.WATER) ctx.fillStyle = '#1a5276';
-        else if (tile === TILE.TREE) ctx.fillStyle = '#1e5213';
-        else if (tile === TILE.DIRT) ctx.fillStyle = '#8b7355';
-        else ctx.fillStyle = '#3a7d2c';
-        ctx.fillRect(x + tx * tileW, y + ty * tileH, tileW + 0.5, tileH + 0.5);
+        if (tile === TILE.WATER) mc.fillStyle = '#1a5276';
+        else if (tile === TILE.TREE) mc.fillStyle = '#1e5213';
+        else if (tile === TILE.DIRT) mc.fillStyle = '#8b7355';
+        else mc.fillStyle = '#3a7d2c';
+        mc.fillRect(tx * tileW, ty * tileH, tileW + 0.5, tileH + 0.5);
       }
     }
+  }
 
-    return { scaleX, scaleY };
+  drawMinimap(ctx, x, y, size) {
+    if (!this._mmCanvas || this._mmSize !== size) {
+      this.buildMinimapCache(size);
+    }
+    ctx.drawImage(this._mmCanvas, x, y);
   }
 }

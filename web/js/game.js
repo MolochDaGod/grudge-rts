@@ -42,6 +42,8 @@ export class Game {
     this.gold = STARTING_GOLD;
     this.sprites = {};
     this.loaded = false;
+    this.gameOver = null; // null | 'win' | 'lose'
+    this.floatingTexts = []; // {x, y, text, color, life}
 
     // Training queue
     this.trainingTimer = 0;
@@ -60,14 +62,39 @@ export class Game {
     // Load sprites
     const knightImg = new Image();
     knightImg.src = UNIT_DEFS.knight.spriteFile;
-    await new Promise((resolve, reject) => {
-      knightImg.onload = resolve;
+    let spriteLoaded = false;
+    await new Promise((resolve) => {
+      knightImg.onload = () => { spriteLoaded = true; resolve(); };
       knightImg.onerror = () => {
-        console.warn('Knight sprite not found, using fallback');
+        console.warn('Knight sprite not found, generating fallback');
         resolve();
       };
     });
-    this.sprites.knight = knightImg;
+
+    if (spriteLoaded) {
+      this.sprites.knight = knightImg;
+    } else {
+      // Generate a fallback spritesheet (25 frames × 100px)
+      const fb = document.createElement('canvas');
+      const def = UNIT_DEFS.knight;
+      fb.width = def.frameW * 25;
+      fb.height = def.frameH;
+      const fc = fb.getContext('2d');
+      const colors = { idle: '#4488cc', walk: '#44cc88', attack: '#cc4444', death: '#666666' };
+      const ranges = { idle: [0,5], walk: [6,13], attack: [14,20], death: [21,24] };
+      for (const [state, [start, end]] of Object.entries(ranges)) {
+        for (let f = start; f <= end; f++) {
+          fc.fillStyle = colors[state];
+          const pad = 10 + ((f - start) * 2);
+          fc.fillRect(f * def.frameW + pad, pad, def.frameW - pad * 2, def.frameH - pad * 2);
+          fc.fillStyle = '#fff';
+          fc.font = 'bold 14px sans-serif';
+          fc.textAlign = 'center';
+          fc.fillText(state[0].toUpperCase(), f * def.frameW + def.frameW / 2, def.frameH / 2 + 5);
+        }
+      }
+      this.sprites.knight = fb;
+    }
 
     // Pre-render map
     this.map.buildCache();
@@ -124,19 +151,34 @@ export class Game {
     requestAnimationFrame((t) => this.loop(t));
   }
 
+  addFloatingText(x, y, text, color) {
+    this.floatingTexts.push({ x, y, text, color, life: 45 });
+  }
+
   update() {
+    if (this.gameOver) return; // freeze game on win/lose
+
     this.input.updateCamera(this.camera);
 
-    // Update units
+    // Update units and collect damage events
     for (const u of this.units) {
+      const prevHp = u.hp;
       u.update(this.map, this.units);
+      // Detect damage taken this frame
+      if (u.hp < prevHp) {
+        const dmg = prevHp - u.hp;
+        this.addFloatingText(u.centerX, u.y - 4, `-${dmg}`, '#ff4444');
+      }
     }
 
     // Remove dead units after their death animation
     this.units = this.units.filter(u => u.alive || u.removeTimer < 120);
 
-    // AI
-    this.ai.update(this.units);
+    // AI (with reinforcement spawning)
+    const newEnemies = this.ai.update(this.units, this.frameCount);
+    if (newEnemies) {
+      for (const u of newEnemies) this.units.push(u);
+    }
 
     // Training
     if (this.trainingQueue > 0) {
@@ -144,7 +186,6 @@ export class Game {
       if (this.trainingTimer >= 120) { // 2 seconds at 60fps
         this.trainingTimer = 0;
         this.trainingQueue--;
-        // Spawn near player base
         const u = new Unit('knight', 4 * TILE_SIZE + Math.random() * 100, 4 * TILE_SIZE + Math.random() * 100, FACTIONS.PLAYER);
         this.units.push(u);
       }
@@ -154,6 +195,13 @@ export class Game {
     if (this.frameCount % 300 === 0) {
       this.gold += 10;
     }
+
+    // Floating text decay
+    for (const ft of this.floatingTexts) {
+      ft.y -= 0.8;
+      ft.life--;
+    }
+    this.floatingTexts = this.floatingTexts.filter(ft => ft.life > 0);
 
     // Right-click marker decay
     if (this.input.rightClickMarker) {
@@ -166,8 +214,14 @@ export class Game {
     // Select all with Ctrl+A
     if (this.input.keys['control'] && this.input.keys['a']) {
       this.units.filter(u => u.alive && u.faction === FACTIONS.PLAYER).forEach(u => u.selected = true);
-      this.input.keys['a'] = false; // debounce
+      this.input.keys['a'] = false;
     }
+
+    // Win / lose check
+    const playerAlive = this.units.some(u => u.faction === FACTIONS.PLAYER && u.alive);
+    const enemyAlive = this.units.some(u => u.faction === FACTIONS.ENEMY && u.alive);
+    if (!playerAlive && this.frameCount > 60) this.gameOver = 'lose';
+    else if (!enemyAlive && this.frameCount > 60) this.gameOver = 'win';
   }
 
   render() {
@@ -204,6 +258,19 @@ export class Game {
       ctx.stroke();
     }
 
+    // Floating damage numbers
+    for (const ft of this.floatingTexts) {
+      const sx = ft.x - this.camera.x;
+      const sy = ft.y - this.camera.y;
+      ctx.globalAlpha = Math.min(1, ft.life / 20);
+      ctx.fillStyle = ft.color;
+      ctx.font = 'bold 14px "Inter", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ft.text, sx, sy);
+      ctx.globalAlpha = 1;
+      ctx.textAlign = 'left';
+    }
+
     // Drag selection rectangle
     if (this.input.dragRect && this.input.mouse.down) {
       const r = this.input.dragRect;
@@ -217,6 +284,20 @@ export class Game {
     }
 
     ctx.restore();
+
+    // Game-over overlay
+    if (this.gameOver) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = this.gameOver === 'win' ? '#d4a843' : '#cc3333';
+      ctx.font = 'bold 48px "Cinzel", serif';
+      ctx.fillText(this.gameOver === 'win' ? 'VICTORY' : 'DEFEAT', W / 2, H / 2 - 20);
+      ctx.fillStyle = '#aaa';
+      ctx.font = '16px "Inter", sans-serif';
+      ctx.fillText('Press R to restart', W / 2, H / 2 + 24);
+      ctx.textAlign = 'left';
+    }
 
     // HUD
     this.drawHUD(ctx, W, H);

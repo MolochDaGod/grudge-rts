@@ -135,8 +135,14 @@
 
       // Keyboard shortcuts
       window.addEventListener('keydown', (e) => {
-        if (e.key.toLowerCase() === 't') {
-          game.trainKnight();
+        const k = e.key.toLowerCase();
+        if (k === 't') game.trainKnight();
+        if (k === 'r' && game.gameOver) {
+          // Full restart
+          game.running = false;
+          window._game = null;
+          loading.classList.remove('hidden');
+          boot();
         }
       });
 

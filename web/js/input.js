@@ -56,20 +56,17 @@ export class InputHandler {
     });
   }
 
-  // Call from game loop to process clicks
-  processClick(camera, units, gameMap, gold) {
-    // Nothing to process if mouse not just released
-    return null;
-  }
-
   handleMouseUp(e, camera, units, gameMap) {
     const mx = e.offsetX;
     const my = e.offsetY;
     const btn = e.button;
 
+    // Ignore clicks inside the HUD bar (except minimap, handled below)
+    const hudY = this.canvas.height - HUD_HEIGHT;
+
     // Check minimap click
     const mmX = this.canvas.width - MINIMAP_SIZE - 10;
-    const mmY = this.canvas.height - HUD_HEIGHT + 10;
+    const mmY = hudY + 10;
     if (mx >= mmX && mx <= mmX + MINIMAP_SIZE && my >= mmY && my <= mmY + MINIMAP_SIZE) {
       const relX = (mx - mmX) / MINIMAP_SIZE;
       const relY = (my - mmY) / MINIMAP_SIZE;
@@ -80,6 +77,9 @@ export class InputHandler {
       this.dragRect = null;
       return { type: 'minimap' };
     }
+
+    // If click is inside HUD area (but not minimap), let the game handle it
+    if (my >= hudY) return { type: 'hud' };
 
     const worldX = mx + camera.x;
     const worldY = my + camera.y;
